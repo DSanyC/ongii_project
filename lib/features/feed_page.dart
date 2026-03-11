@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../core/theme/app_theme.dart';
 import '../shared/models/models.dart';
+import '../shared/widgets/unified_page_header.dart';
 
 class FeedPage extends StatelessWidget {
   const FeedPage({super.key});
@@ -13,7 +14,8 @@ class FeedPage extends StatelessWidget {
         id: 'p1',
         type: 'photo',
         authorId: 'u1',
-        content: 'Walked through flowers today. Great weather and great memories.',
+        content:
+            'Walked through flowers today. Great weather and great memories.',
         createdAt: DateTime(2026, 3, 7, 9, 20),
         pinned: true,
         likes: 12,
@@ -31,29 +33,28 @@ class FeedPage extends StatelessWidget {
       ),
     ];
 
+    final postWidgets = <Widget>[
+      const _FeedFilter(),
+      const SizedBox(height: 14),
+    ];
+    for (final post in posts) {
+      postWidgets.add(_PostCard(post: post));
+      postWidgets.add(const SizedBox(height: 12));
+    }
+
     return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      child: Column(
         children: [
-          Row(
-            children: [
-              const Icon(Icons.family_restroom, color: AppTheme.accent),
-              const SizedBox(width: 6),
-              Text('Ongii', style: Theme.of(context).textTheme.titleLarge),
-              const Spacer(),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.notifications_none_rounded),
-              ),
-            ],
+          UnifiedPageHeader(
+            title: 'Feed',
+            actionIcon: Icons.notifications_none_rounded,
           ),
-          const SizedBox(height: 10),
-          const _FeedFilter(),
-          const SizedBox(height: 14),
-          for (final post in posts) ...[
-            _PostCard(post: post),
-            const SizedBox(height: 12),
-          ],
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              children: postWidgets,
+            ),
+          ),
         ],
       ),
     );
@@ -136,7 +137,10 @@ class _PostCard extends StatelessWidget {
                 color: AppTheme.accentSoft,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              child: const Text('Pinned notice', style: TextStyle(fontWeight: FontWeight.w700)),
+              child: const Text(
+                'Pinned notice',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
             ),
           const SizedBox(height: 12),
           Padding(
@@ -169,7 +173,11 @@ class _PostCard extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFF7C25D), Color(0xFFE88E3B), Color(0xFF2E4E5E)],
+                  colors: [
+                    Color(0xFFF7C25D),
+                    Color(0xFFE88E3B),
+                    Color(0xFF2E4E5E),
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -179,18 +187,29 @@ class _PostCard extends StatelessWidget {
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Text(post.content, style: Theme.of(context).textTheme.bodyLarge),
+            child: Text(
+              post.content,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
           ),
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
             child: Row(
               children: [
-                const Icon(Icons.favorite_border, size: 18, color: AppTheme.textMuted),
+                const Icon(
+                  Icons.favorite_border,
+                  size: 18,
+                  color: AppTheme.textMuted,
+                ),
                 const SizedBox(width: 4),
                 Text('${post.likes}'),
                 const SizedBox(width: 12),
-                const Icon(Icons.mode_comment_outlined, size: 18, color: AppTheme.textMuted),
+                const Icon(
+                  Icons.mode_comment_outlined,
+                  size: 18,
+                  color: AppTheme.textMuted,
+                ),
                 const SizedBox(width: 4),
                 Text('${post.comments}'),
                 const Spacer(),
@@ -199,7 +218,9 @@ class _PostCard extends StatelessWidget {
                     minimumSize: const Size(98, 34),
                     backgroundColor: AppTheme.accent,
                     foregroundColor: AppTheme.textPrimary,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                   onPressed: () {},
                   child: const Text('Comment'),

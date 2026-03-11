@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../core/theme/app_theme.dart';
 import '../shared/models/models.dart';
+import '../shared/widgets/unified_page_header.dart';
 
 class MyPage extends StatelessWidget {
   const MyPage({super.key});
@@ -16,125 +17,151 @@ class MyPage extends StatelessWidget {
     ];
 
     return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.all(16),
+      child: Column(
         children: [
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-              ),
-              Text('My Page', style: Theme.of(context).textTheme.titleLarge),
-              const Spacer(),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.settings_outlined),
-              ),
-            ],
+          UnifiedPageHeader(
+            title: 'My Page',
+            actionIcon: Icons.settings_outlined,
           ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(22),
-            ),
-            child: Row(
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               children: [
-                const CircleAvatar(
-                  radius: 34,
-                  backgroundColor: AppTheme.accentSoft,
-                  child: Icon(Icons.person, size: 34, color: AppTheme.textMuted),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: Row(
                     children: [
-                      Text('Jane Doe', style: Theme.of(context).textTheme.titleMedium),
-                      const SizedBox(height: 3),
-                      Text('Grandmother', style: Theme.of(context).textTheme.bodyMedium),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppTheme.accentSoft,
-                          borderRadius: BorderRadius.circular(12),
+                      const CircleAvatar(
+                        radius: 34,
+                        backgroundColor: AppTheme.accentSoft,
+                        child: Icon(
+                          Icons.person,
+                          size: 34,
+                          color: AppTheme.textMuted,
                         ),
-                        child: const Text('Edit Profile', style: TextStyle(fontSize: 12)),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Jane Doe',
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              'Grandmother',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppTheme.accentSoft,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                'Edit Profile',
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Text('Family Members', style: Theme.of(context).textTheme.titleMedium),
-              const Spacer(),
-              const Text('+ Add', style: TextStyle(color: AppTheme.accent, fontWeight: FontWeight.w700)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Row(
-              children: members
-                  .map(
-                    (member) => Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: CircleAvatar(
-                        radius: 18,
-                        backgroundColor: AppTheme.accentSoft,
-                        child: Text(
-                          member.avatarLabel,
-                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11),
-                        ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Text(
+                      'Family Members',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const Spacer(),
+                    const Text(
+                      '+ Add',
+                      style: TextStyle(
+                        color: AppTheme.accent,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                  )
-                  .toList(),
-            ),
-          ),
-          const SizedBox(height: 16),
-          const _MenuItem(
-            icon: Icons.notifications_none_rounded,
-            title: 'Notifications',
-            subtitle: 'Manage alerts and sounds',
-          ),
-          const SizedBox(height: 10),
-          const _MenuItem(
-            icon: Icons.groups_outlined,
-            title: 'Family Management',
-            subtitle: 'Manage family member permissions',
-          ),
-          const SizedBox(height: 10),
-          const _MenuItem(
-            icon: Icons.security_outlined,
-            title: 'Privacy & Security',
-            subtitle: 'Data and account safety settings',
-          ),
-          const SizedBox(height: 10),
-          const _MenuItem(
-            icon: Icons.help_outline_rounded,
-            title: 'Support',
-            subtitle: 'FAQ and contact us',
-          ),
-          const SizedBox(height: 18),
-          Center(
-            child: TextButton(
-              onPressed: () {},
-              child: const Text(
-                'Log out',
-                style: TextStyle(color: AppTheme.textMuted, fontWeight: FontWeight.w600),
-              ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Row(
+                    children: members
+                        .map(
+                          (member) => Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: CircleAvatar(
+                              radius: 18,
+                              backgroundColor: AppTheme.accentSoft,
+                              child: Text(
+                                member.avatarLabel,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const _MenuItem(
+                  icon: Icons.notifications_none_rounded,
+                  title: 'Notifications',
+                  subtitle: 'Manage alerts and sounds',
+                ),
+                const SizedBox(height: 10),
+                const _MenuItem(
+                  icon: Icons.groups_outlined,
+                  title: 'Family Management',
+                  subtitle: 'Manage family member permissions',
+                ),
+                const SizedBox(height: 10),
+                const _MenuItem(
+                  icon: Icons.security_outlined,
+                  title: 'Privacy & Security',
+                  subtitle: 'Data and account safety settings',
+                ),
+                const SizedBox(height: 10),
+                const _MenuItem(
+                  icon: Icons.help_outline_rounded,
+                  title: 'Support',
+                  subtitle: 'FAQ and contact us',
+                ),
+                const SizedBox(height: 18),
+                Center(
+                  child: TextButton(
+                    onPressed: () {},
+                    child: const Text(
+                      'Log out',
+                      style: TextStyle(
+                        color: AppTheme.textMuted,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../core/theme/app_theme.dart';
 import '../shared/models/models.dart';
+import '../shared/widgets/unified_page_header.dart';
 
 class ChatPage extends StatelessWidget {
   const ChatPage({super.key});
@@ -57,37 +58,9 @@ class _ChatHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      color: Colors.white,
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-          ),
-          const Expanded(
-            child: Column(
-              children: [
-                Text('Family Chat', style: TextStyle(fontWeight: FontWeight.w700)),
-                SizedBox(height: 2),
-                Text(
-                  '4 members online',
-                  style: TextStyle(
-                    color: AppTheme.accent,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.group_outlined),
-          ),
-        ],
-      ),
+    return const UnifiedPageHeader(
+      title: 'Family Chat',
+      actionIcon: Icons.group_outlined,
     );
   }
 }
@@ -155,7 +128,10 @@ class _Composer extends StatelessWidget {
                 color: const Color(0xFFF3F3F3),
               ),
               alignment: Alignment.centerLeft,
-              child: const Text('Type a message...', style: TextStyle(color: AppTheme.textMuted)),
+              child: const Text(
+                'Type a message...',
+                style: TextStyle(color: AppTheme.textMuted),
+              ),
             ),
           ),
           const SizedBox(width: 8),
