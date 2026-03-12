@@ -47,7 +47,7 @@ class FeedPage extends StatelessWidget {
         children: [
           UnifiedPageHeader(
             title: 'Feed',
-            actionIcon: Icons.notifications_none_rounded,
+            actionIcon: Icons.search_rounded,
           ),
           Expanded(
             child: ListView(

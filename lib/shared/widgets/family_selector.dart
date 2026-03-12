@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 
 class FamilySelector extends StatelessWidget {
-  FamilySelector({super.key});
+  const FamilySelector({super.key});
 
   static const List<String> families = <String>[
     'Kim Family',

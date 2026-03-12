@@ -59,7 +59,7 @@ class _ChatHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const UnifiedPageHeader(
-      title: 'Family Chat',
+      title: 'Chat',
       actionIcon: Icons.group_outlined,
     );
   }

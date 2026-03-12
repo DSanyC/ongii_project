@@ -68,7 +68,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     _SelectedScheduleCard(
                       isNarrow: isNarrow,
                       selectedDate: _selectedDate,
-                      plans: _MonthlyPlannerCard.plansForDay(_selectedDate.day),
+                      plans: _MonthlyPlannerCard.plansForDate(_selectedDate),
                       onPlanTap: _handlePlanTap,
                     ),
                   ],
@@ -279,7 +279,7 @@ class _MonthlyPlannerCard extends StatelessWidget {
     1: [const _PlanItem('Hospital visit', '09:30', Color(0xFFD6EAFE))],
     2: [const _PlanItem('Grocery', '18:00', Color(0xFFE9E0FF))],
     3: [const _PlanItem('PT check', '08:40', Color(0xFFFDE7C7))],
-    4: [const _PlanItem('Family call', '20:00', Color(0xFFDDF4E4))],
+    4: [const _PlanItem('Family call', null, Color(0xFFDDF4E4))],
     5: [const _PlanItem('Project', '10:00', Color(0xFFD6EAFE))],
     6: [const _PlanItem('Health check', '14:10', Color(0xFFFDE7C7))],
     7: [
@@ -288,14 +288,52 @@ class _MonthlyPlannerCard extends StatelessWidget {
     ],
     11: [const _PlanItem('Clinic', '11:00', Color(0xFFDDF4E4))],
     13: [const _PlanItem('Meeting', '15:00', Color(0xFFE9E0FF))],
+    15: [
+      const _PlanItem('School event', '09:00', Color(0xFFD6EAFE)),
+      const _PlanItem('Dinner reservation', '19:00', Color(0xFFF8D9E3)),
+    ],
     17: [const _PlanItem('Online class', '19:30', Color(0xFFD6EAFE))],
+    21: [
+      const _PlanItem('Pharmacy pickup', null, Color(0xFFDDF4E4)),
+      const _PlanItem('Parent meeting', '17:30', Color(0xFFE9E0FF)),
+    ],
     19: [const _PlanItem('Kids pickup', '17:40', Color(0xFFE9E0FF))],
     23: [const _PlanItem('Gym', '06:30', Color(0xFFDDF4E4))],
     31: [const _PlanItem('Family day', '12:00', Color(0xFFF8D9E3))],
   };
 
+  static final List<_RangePlan> _multiDayPlans = [
+    _RangePlan(
+      startDay: 14,
+      endDay: 16,
+      item: const _PlanItem(
+        'Family trip',
+        null,
+        Color(0xFFFFE1B5),
+        isMultiDay: true,
+      ),
+    ),
+  ];
+
   static List<_PlanItem> plansForDay(int day) {
-    return _plans[day] ?? const <_PlanItem>[];
+    final singlePlans = _plans[day] ?? const <_PlanItem>[];
+    final rangedPlans = _multiDayPlans
+        .where((plan) => plan.containsDay(day))
+        .map((plan) => plan.item);
+    return [...singlePlans, ...rangedPlans];
+  }
+
+  static List<_PlanItem> plansForDate(DateTime date) {
+    return plansForDay(date.day);
+  }
+
+  static _RangePlan? multiDayPlanForDay(int day) {
+    for (final plan in _multiDayPlans) {
+      if (plan.containsDay(day)) {
+        return plan;
+      }
+    }
+    return null;
   }
 
   @override
@@ -427,15 +465,19 @@ class _PlannerTable extends StatelessWidget {
           border: Border(bottom: BorderSide(color: Color(0xFFECECEC))),
         ),
         children: _MonthlyPlannerCard._days
+            .asMap()
+            .entries
             .map(
-              (day) => Padding(
+              (entry) => Padding(
                 padding: EdgeInsets.symmetric(vertical: isNarrow ? 6 : 8),
                 child: Center(
                   child: Text(
-                    day,
+                    entry.value,
                     style: TextStyle(
                       fontSize: isNarrow ? 10 : 11,
-                      color: AppTheme.textMuted,
+                      color: entry.key == 0
+                          ? const Color(0xFFE53935)
+                          : AppTheme.textMuted,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -457,7 +499,10 @@ class _PlannerTable extends StatelessWidget {
         cells.add(
           _DayCell(
             day: day,
+            displayedYear: displayedYear,
+            displayedMonth: displayedMonth,
             isNarrow: isNarrow,
+            isSunday: dayIndex == 0,
             isToday: day != null && day == todayDay,
             isSelected: day != null && selectedDay != null && day == selectedDay,
             onTap: day == null
@@ -499,28 +544,49 @@ class _PlannerTable extends StatelessWidget {
 class _DayCell extends StatelessWidget {
   const _DayCell({
     required this.day,
+    required this.displayedYear,
+    required this.displayedMonth,
     required this.isNarrow,
+    required this.isSunday,
     required this.isToday,
     required this.isSelected,
     required this.onTap,
   });
 
   final int? day;
+  final int displayedYear;
+  final int displayedMonth;
   final bool isNarrow;
+  final bool isSunday;
   final bool isToday;
   final bool isSelected;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final plans = day == null
+    final cellHorizontalPadding = isNarrow ? 4.0 : 5.0;
+    final allPlans = day == null
         ? const <_PlanItem>[]
-        : (_MonthlyPlannerCard._plans[day] ?? const <_PlanItem>[]);
+        : _MonthlyPlannerCard.plansForDate(
+            DateTime(displayedYear, displayedMonth, day!),
+          );
+    final rangePlan = day == null ? null : _MonthlyPlannerCard.multiDayPlanForDay(day!);
+    final dailyPlans = allPlans.where((plan) => !plan.isMultiDay).toList();
+    final orderedPlans = <_PlanItem>[
+      if (rangePlan != null) rangePlan.item,
+      ...dailyPlans,
+    ];
+    final visiblePlans = orderedPlans.take(2).toList();
+    final additionalPlanCount =
+        orderedPlans.length > visiblePlans.length ? orderedPlans.length - visiblePlans.length : 0;
 
     return ConstrainedBox(
       constraints: BoxConstraints(minHeight: isNarrow ? 58 : 68),
       child: Padding(
-        padding: EdgeInsets.all(isNarrow ? 2 : 3),
+        padding: EdgeInsets.symmetric(
+          horizontal: 0,
+          vertical: isNarrow ? 2 : 3,
+        ),
         child: day == null
             ? const SizedBox.shrink()
             : Material(
@@ -528,97 +594,183 @@ class _DayCell extends StatelessWidget {
                 child: InkWell(
                   borderRadius: BorderRadius.circular(6),
                   onTap: onTap,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: isNarrow ? 2 : 3,
-                      vertical: isNarrow ? 2 : 3,
-                    ),
-                    decoration: isSelected
-                        ? BoxDecoration(
-                            color: const Color(0xFFFFF2F2),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: const Color(0xFFE53935),
-                              width: 1.4,
-                            ),
-                          )
-                        : null,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                  child: Stack(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 0,
+                          vertical: isNarrow ? 2 : 3,
+                        ),
+                        decoration: isSelected
+                            ? BoxDecoration(
+                                color: const Color(0xFFFFF2F2),
+                                borderRadius: BorderRadius.circular(6),
+                              )
+                            : null,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (isToday)
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: isNarrow ? 3 : 4,
-                                  vertical: 1,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFA000),
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                child: Text(
-                                  'Today',
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: cellHorizontalPadding,
+                              ),
+                              child: Row(
+                                children: [
+                                  if (isToday)
+                                    Container(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: isNarrow ? 3 : 4,
+                                        vertical: 1,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFA000),
+                                        borderRadius: BorderRadius.circular(999),
+                                      ),
+                                      child: Text(
+                                        'Today',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: isNarrow ? 7 : 8,
+                                        ),
+                                      ),
+                                    ),
+                                  const Spacer(),
+                                  Text(
+                                  '$day',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: isToday
+                                        ? const Color(0xFFBF360C)
+                                        : isSunday
+                                        ? const Color(0xFFE53935)
+                                        : AppTheme.textPrimary,
                                     fontWeight: FontWeight.w700,
-                                    fontSize: isNarrow ? 7 : 8,
+                                    fontSize: isNarrow ? 10 : 11,
+                                  ),
+                                ),
+                                ],
+                              ),
+                            ),
+                            if (isToday)
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  top: 2,
+                                  left: cellHorizontalPadding,
+                                  right: cellHorizontalPadding,
+                                ),
+                                child: Container(
+                                  width: 22,
+                                  height: 2,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFA000),
+                                    borderRadius: BorderRadius.circular(999),
                                   ),
                                 ),
                               ),
-                            const Spacer(),
-                            Text(
-                              '$day',
-                              style: TextStyle(
-                                color: isToday
-                                    ? const Color(0xFFBF360C)
-                                    : AppTheme.textPrimary,
-                                fontWeight: FontWeight.w700,
-                                fontSize: isNarrow ? 10 : 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                        if (isToday)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Container(
-                              width: 22,
-                              height: 2,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFFFA000),
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                            ),
-                          ),
-                        const SizedBox(height: 2),
-                        ...plans.take(isNarrow ? 1 : 2).map((plan) {
-                          return Container(
-                            width: double.infinity,
-                            margin: const EdgeInsets.only(bottom: 2),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isNarrow ? 3 : 4,
-                              vertical: isNarrow ? 1 : 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: plan.color,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              plan.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
+                            const SizedBox(height: 2),
+                            ...visiblePlans.map((plan) {
+                              final isRangeBar = rangePlan != null && plan.isMultiDay;
+                              final shouldHideText = isRangeBar && !rangePlan.isStartDay(day!);
+                              final barLeftMargin = isRangeBar && !rangePlan.isStartDay(day!)
+                                  ? 0.0
+                                  : cellHorizontalPadding;
+                              final barRightMargin = isRangeBar && !rangePlan.isEndDay(day!)
+                                  ? 0.0
+                                  : cellHorizontalPadding;
+                              final planTextStyle = TextStyle(
                                 fontSize: isNarrow ? 8 : 9,
                                 color: AppTheme.textPrimary,
                                 fontWeight: FontWeight.w600,
+                              );
+
+                              return Container(
+                                width: double.infinity,
+                                margin: EdgeInsets.only(
+                                  bottom: 2,
+                                  left: barLeftMargin,
+                                  right: barRightMargin,
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: isNarrow ? 3 : 4,
+                                  vertical: isNarrow ? 1 : 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: plan.color,
+                                  borderRadius: isRangeBar
+                                      ? BorderRadius.only(
+                                          topLeft: Radius.circular(
+                                            rangePlan.isStartDay(day!) ? 4 : 0,
+                                          ),
+                                          bottomLeft: Radius.circular(
+                                            rangePlan.isStartDay(day!) ? 4 : 0,
+                                          ),
+                                          topRight: Radius.circular(
+                                            rangePlan.isEndDay(day!) ? 4 : 0,
+                                          ),
+                                          bottomRight: Radius.circular(
+                                            rangePlan.isEndDay(day!) ? 4 : 0,
+                                          ),
+                                        )
+                                      : BorderRadius.circular(4),
+                                ),
+                                child: shouldHideText
+                                    ? SizedBox(
+                                        width: double.infinity,
+                                        child: Opacity(
+                                          opacity: 0,
+                                          child: Text(
+                                            plan.title,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: planTextStyle,
+                                          ),
+                                        ),
+                                      )
+                                    : Text(
+                                        plan.title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: planTextStyle,
+                                      ),
+                              );
+                            }),
+                            if (additionalPlanCount > 0)
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  top: 1,
+                                  left: cellHorizontalPadding,
+                                  right: cellHorizontalPadding,
+                                ),
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    '+$additionalPlanCount',
+                                    style: TextStyle(
+                                      fontSize: isNarrow ? 8 : 9,
+                                      color: AppTheme.textMuted,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      if (isSelected)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: const Color(0xFFE53935),
+                                  width: 1.4,
+                                ),
                               ),
                             ),
-                          );
-                        }),
-                      ],
-                    ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -693,6 +845,17 @@ class _SelectedScheduleCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
+                    if (plan.time != null) ...[
+                      Text(
+                        plan.time!,
+                        style: TextStyle(
+                          fontSize: isNarrow ? 11 : 12,
+                          color: AppTheme.textMuted,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                     Expanded(
                       child: Text(
                         plan.title,
@@ -703,17 +866,6 @@ class _SelectedScheduleCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (plan.time != null) ...[
-                      const SizedBox(width: 8),
-                      Text(
-                        plan.time!,
-                        style: TextStyle(
-                          fontSize: isNarrow ? 11 : 12,
-                          color: AppTheme.textMuted,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -726,9 +878,31 @@ class _SelectedScheduleCard extends StatelessWidget {
 }
 
 class _PlanItem {
-  const _PlanItem(this.title, this.time, this.color);
+  const _PlanItem(
+    this.title,
+    this.time,
+    this.color, {
+    this.isMultiDay = false,
+  });
 
   final String title;
   final String? time;
   final Color color;
+  final bool isMultiDay;
+}
+
+class _RangePlan {
+  const _RangePlan({
+    required this.startDay,
+    required this.endDay,
+    required this.item,
+  });
+
+  final int startDay;
+  final int endDay;
+  final _PlanItem item;
+
+  bool containsDay(int day) => day >= startDay && day <= endDay;
+  bool isStartDay(int day) => day == startDay;
+  bool isEndDay(int day) => day == endDay;
 }

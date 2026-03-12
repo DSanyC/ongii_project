@@ -21,21 +21,23 @@ class UnifiedPageHeader extends StatelessWidget {
       color: Colors.white,
       child: Row(
         children: [
+          if (title == 'Ongii') ...[
+            const Icon(Icons.pets_rounded, size: 20, color: Color(0xFFE65100)),
+            const SizedBox(width: 6),
+          ],
           Text(
             title,
             style: const TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 18,
+              color: Color(0xFFE65100),
             ),
           ),
           const Spacer(),
-          FamilySelector(),
+          const FamilySelector(),
           if (actionIcon != null) ...[
             const SizedBox(width: 4),
-            IconButton(
-              onPressed: onActionTap ?? () {},
-              icon: Icon(actionIcon),
-            ),
+            IconButton(onPressed: onActionTap ?? () {}, icon: Icon(actionIcon)),
           ],
         ],
       ),
