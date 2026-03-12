@@ -55,11 +55,13 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 - Safety and fallback: 스킬을 깔끔하게 적용할 수 없으면(파일 누락, 지침 불명확 등) 문제를 알리고, 다음으로 적절한 접근을 선택해 계속 진행합니다.
 
 ## Validation Timing Protocol (English)
-- Run `dart format` first, then report result and elapsed time immediately.
-- Run `flutter analyze` as a separate step (not in parallel with other checks).
-- If `flutter analyze` exceeds 10 minutes, share a progress update with likely cause (lock/cache/tool warmup) and propose alternatives right away.
+- Do not run validation commands by default.
+- Do not run `dart format`.
+- Do not run `flutter analyze`.
+- Only run validation when the user explicitly requests it.
 
 ## Validation Timing Protocol (한국어)
-- 먼저 `dart format`을 실행하고 결과와 소요 시간을 즉시 공유합니다.
-- `flutter analyze`는 다른 점검과 병렬로 실행하지 않고 별도 단계로 실행합니다.
-- `flutter analyze`가 10분을 넘기면, 가능한 원인(lock/cache/tool warmup)과 대안을 즉시 공유합니다.
+- 기본적으로 검증 명령은 실행하지 않습니다.
+- `dart format`을 실행하지 않습니다.
+- `flutter analyze`를 실행하지 않습니다.
+- 사용자가 명시적으로 요청한 경우에만 검증을 실행합니다.

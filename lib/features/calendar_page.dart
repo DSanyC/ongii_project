@@ -40,7 +40,7 @@ class _CalendarPageState extends State<CalendarPage> {
             children: [
               const UnifiedPageHeader(
                 title: 'Ongii',
-                actionIcon: Icons.notifications_none_rounded,
+                actionIcon: Icons.add_rounded,
               ),
               Expanded(
                 child: ListView(
@@ -577,6 +577,10 @@ class _DayCell extends StatelessWidget {
       ...dailyPlans,
     ];
     final visiblePlans = orderedPlans.take(2).toList();
+    final normalizedPlans = List<_PlanItem?>.generate(
+      2,
+      (index) => index < visiblePlans.length ? visiblePlans[index] : null,
+    );
     final additionalPlanCount =
         orderedPlans.length > visiblePlans.length ? orderedPlans.length - visiblePlans.length : 0;
 
@@ -668,7 +672,35 @@ class _DayCell extends StatelessWidget {
                                 ),
                               ),
                             const SizedBox(height: 2),
-                            ...visiblePlans.map((plan) {
+                            ...normalizedPlans.map((plan) {
+                              if (plan == null) {
+                                return Container(
+                                  width: double.infinity,
+                                  margin: EdgeInsets.only(
+                                    bottom: 2,
+                                    left: cellHorizontalPadding,
+                                    right: cellHorizontalPadding,
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: isNarrow ? 3 : 4,
+                                    vertical: isNarrow ? 1 : 2,
+                                  ),
+                                  child: Opacity(
+                                    opacity: 0,
+                                    child: Text(
+                                      'placeholder',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: isNarrow ? 8 : 9,
+                                        color: AppTheme.textPrimary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+
                               final isRangeBar = rangePlan != null && plan.isMultiDay;
                               final shouldHideText = isRangeBar && !rangePlan.isStartDay(day!);
                               final barLeftMargin = isRangeBar && !rangePlan.isStartDay(day!)
@@ -734,25 +766,24 @@ class _DayCell extends StatelessWidget {
                                       ),
                               );
                             }),
-                            if (additionalPlanCount > 0)
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  top: 1,
-                                  left: cellHorizontalPadding,
-                                  right: cellHorizontalPadding,
-                                ),
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    '+$additionalPlanCount',
-                                    style: TextStyle(
-                                      fontSize: isNarrow ? 8 : 9,
-                                      color: AppTheme.textMuted,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                top: 1,
+                                left: cellHorizontalPadding,
+                                right: cellHorizontalPadding,
+                              ),
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Text(
+                                  additionalPlanCount > 0 ? '+$additionalPlanCount' : ' ',
+                                  style: TextStyle(
+                                    fontSize: isNarrow ? 8 : 9,
+                                    color: AppTheme.textMuted,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ),
+                            ),
                           ],
                         ),
                       ),
