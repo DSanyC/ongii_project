@@ -618,59 +618,62 @@ class _DayCell extends StatelessWidget {
                               padding: EdgeInsets.symmetric(
                                 horizontal: cellHorizontalPadding,
                               ),
-                              child: Row(
-                                children: [
-                                  if (isToday)
+                              child: SizedBox(
+                                height: isNarrow ? 18 : 20,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        if (isToday)
+                                          Container(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: isNarrow ? 3 : 4,
+                                              vertical: 1,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFFFA000),
+                                              borderRadius: BorderRadius.circular(999),
+                                            ),
+                                            child: Text(
+                                              'Today',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: isNarrow ? 7 : 8,
+                                              ),
+                                            ),
+                                          ),
+                                        const Spacer(),
+                                        Text(
+                                          '$day',
+                                          style: TextStyle(
+                                            color: isToday
+                                                ? const Color(0xFFBF360C)
+                                                : isSunday
+                                                ? const Color(0xFFE53935)
+                                                : AppTheme.textPrimary,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: isNarrow ? 10 : 11,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
                                     Container(
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: isNarrow ? 3 : 4,
-                                        vertical: 1,
-                                      ),
+                                      width: 22,
+                                      height: 2,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFFFFA000),
+                                        color: isToday
+                                            ? const Color(0xFFFFA000)
+                                            : Colors.transparent,
                                         borderRadius: BorderRadius.circular(999),
                                       ),
-                                      child: Text(
-                                        'Today',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: isNarrow ? 7 : 8,
-                                        ),
-                                      ),
                                     ),
-                                  const Spacer(),
-                                  Text(
-                                  '$day',
-                                  style: TextStyle(
-                                    color: isToday
-                                        ? const Color(0xFFBF360C)
-                                        : isSunday
-                                        ? const Color(0xFFE53935)
-                                        : AppTheme.textPrimary,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: isNarrow ? 10 : 11,
-                                  ),
+                                  ],
                                 ),
-                                ],
                               ),
                             ),
-                            if (isToday)
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  top: 2,
-                                  left: cellHorizontalPadding,
-                                  right: cellHorizontalPadding,
-                                ),
-                                child: Container(
-                                  width: 22,
-                                  height: 2,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFA000),
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                ),
-                              ),
                             const SizedBox(height: 2),
                             ...normalizedPlans.map((plan) {
                               if (plan == null) {
